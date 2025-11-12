@@ -11,6 +11,7 @@ export default function Godowns() {
   const [query, setQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [newGodown, setNewGodown] = useState({ name: "", address: "" });
+  const [creating, setCreating] = useState(false); // ✅ new state
   const navigate = useNavigate();
 
   const loadGodowns = async () => {
@@ -32,15 +33,19 @@ export default function Godowns() {
       alert("Godown name is required!");
       return;
     }
+
     try {
+      setCreating(true); // ✅ disable button
       await axios.post(`${BASE_URL}/godown`, newGodown);
-      alert("Godown created successfully!");
+      alert("✅ Godown created successfully!");
       setShowModal(false);
       setNewGodown({ name: "", address: "" });
       loadGodowns();
     } catch (err) {
       console.error("Error creating godown:", err);
-      alert("Failed to create godown");
+      alert("❌ Failed to create godown");
+    } finally {
+      setCreating(false); // ✅ re-enable button
     }
   };
 
@@ -66,9 +71,7 @@ export default function Godowns() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between mb-10">
         <div className="sm:text-left mb-4 sm:mb-0">
-          <h2 className="text-3xl font-bold text-gray-800">
-            Godowns
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-800">Godowns</h2>
           <p className="text-gray-500 mt-2">Manage your warehouse locations</p>
         </div>
 
@@ -117,9 +120,7 @@ export default function Godowns() {
                   size={26}
                   className="text-blue-600 group-hover:scale-110 transition-transform"
                 />
-                <h3 className="text-xl font-semibold text-gray-800">
-                  {g.name}
-                </h3>
+                <h3 className="text-xl font-semibold text-gray-800">{g.name}</h3>
               </div>
               <div className="flex items-start gap-2 text-gray-500">
                 <MapPin size={18} className="mt-0.5 text-gray-400" />
@@ -134,7 +135,7 @@ export default function Godowns() {
 
       {/* Modal Popup */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 flex justify-center items-center z-50 transition-opacity duration-300 bg-black/40 ">
           <div className="bg-white rounded-2xl shadow-2xl p-8 w-96 relative transform scale-100 transition-all duration-300">
             <h3 className="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">
               Add New Godown
@@ -175,15 +176,25 @@ export default function Godowns() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowModal(false)}
-                className="border px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700 transition-all"
+                disabled={creating} // prevent closing while creating
+                className={`border px-4 py-2 rounded-lg transition-all ${
+                  creating
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-100 text-gray-700"
+                }`}
               >
                 Cancel
               </button>
               <button
                 onClick={createGodown}
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+                disabled={creating}
+                className={`px-5 py-2 rounded-lg shadow-md transition-all text-white ${
+                  creating
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+                }`}
               >
-                Create
+                {creating ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
