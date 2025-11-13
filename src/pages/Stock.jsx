@@ -19,7 +19,7 @@ export default function Stock() {
   const [quantity, setQuantity] = useState("");
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("in");
+  const [updating, setUpdating] = useState(false); // ✅ new state to block buttons
 
   const loadProducts = async () => {
     try {
@@ -49,7 +49,9 @@ export default function Stock() {
       alert("Please select a product and enter a valid quantity");
       return;
     }
+
     try {
+      setUpdating(true); // ✅ disable buttons
       await axios.post(`${BASE_URL}/product/update-quantity`, {
         id: selected._id || selected.id,
         type,
@@ -65,13 +67,15 @@ export default function Stock() {
           at: new Date().toISOString(),
         },
         ...r,
-      ]); 
+      ]);
 
       await loadProducts();
       setQuantity("");
     } catch (err) {
       console.error("Failed to update stock:", err);
       alert("Stock update failed");
+    } finally {
+      setUpdating(false); // ✅ re-enable buttons
     }
   };
 
@@ -87,34 +91,6 @@ export default function Stock() {
 
       {/* Main Form Section */}
       <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-lg p-10">
-        {/* Toggle Buttons */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex bg-gray-100 rounded-xl p-1">
-            <button
-              onClick={() => setActiveTab("in")}
-              className={`px-6 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 ${
-                activeTab === "in"
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-blue-600"
-              }`}
-            >
-              <ArrowUpCircle size={18} />
-              Stock In
-            </button>
-            <button
-              onClick={() => setActiveTab("out")}
-              className={`px-6 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 ${
-                activeTab === "out"
-                  ? "bg-red-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-red-600"
-              }`}
-            >
-              <ArrowDownCircle size={18} />
-              Stock Out
-            </button>
-          </div>
-        </div>
-
         {loading ? (
           <p className="text-center text-gray-500 py-8">
             Loading products...
@@ -189,36 +165,55 @@ export default function Stock() {
               </label>
               <input
                 type="number"
-                placeholder={`Enter quantity to ${
-                  activeTab === "in" ? "add" : "remove"
-                }`}
+                placeholder="Enter quantity"
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
               />
             </div>
 
-            {/* Action Button */}
-            <button
-              onClick={() =>
-                updateStock(activeTab === "in" ? "added" : "subtracted")
-              }
-              className={`w-full py-3 rounded-lg text-white font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
-                activeTab === "in"
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-red-600 hover:bg-red-700"
-              }`}
-            >
-              {activeTab === "in" ? (
-                <>
-                  <ArrowUpCircle size={20} /> Add Stock
-                </>
-              ) : (
-                <>
-                  <ArrowDownCircle size={20} /> Remove Stock
-                </>
-              )}
-            </button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => updateStock("added")}
+                disabled={updating}
+                className={`w-full sm:w-1/2 py-3 rounded-lg text-white font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+                  updating
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {updating ? (
+                  <>
+                    <ArrowUpCircle size={20} /> Adding...
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpCircle size={20} /> Add Stock
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => updateStock("subtracted")}
+                disabled={updating}
+                className={`w-full sm:w-1/2 py-3 rounded-lg text-white font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+                  updating
+                    ? "bg-red-400 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {updating ? (
+                  <>
+                    <ArrowDownCircle size={20} /> Removing...
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownCircle size={20} /> Remove Stock
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </div>

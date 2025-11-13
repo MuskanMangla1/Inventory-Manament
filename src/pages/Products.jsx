@@ -5,7 +5,7 @@ import { Pencil, Trash2, PlusCircle, BarChart3 } from "lucide-react";
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
 // -------------------- ADD PRODUCT MODAL --------------------
-function AddProductModal({ open, onClose, godowns, onAdded }) {
+function AddProductModal({ open, onClose, godowns, onAdded, existingCategories }) {
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -66,16 +66,45 @@ function AddProductModal({ open, onClose, godowns, onAdded }) {
           ))}
         </select>
 
-        {["name", "category", "size", "color"].map((field) => (
-          <input
-            key={field}
-            className="w-full border rounded-lg px-3 py-2 mb-3"
-            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-            value={form[field]}
-            disabled={loading}
-            onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-          />
-        ))}
+        {/* Name Input */}
+        <input
+          className="w-full border rounded-lg px-3 py-2 mb-3"
+          placeholder="Name"
+          value={form.name}
+          disabled={loading}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
+
+        {/* Category Input with Datalist */}
+        <input
+          list="category-list"
+          className="w-full border rounded-lg px-3 py-2 mb-3"
+          placeholder="Category"
+          value={form.category}
+          disabled={loading}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+        />
+        <datalist id="category-list">
+          {existingCategories.map((cat, i) => (
+            <option key={i} value={cat} />
+          ))}
+        </datalist>
+
+        {/* Size & Color */}
+        <input
+          className="w-full border rounded-lg px-3 py-2 mb-3"
+          placeholder="Size"
+          value={form.size}
+          disabled={loading}
+          onChange={(e) => setForm({ ...form, size: e.target.value })}
+        />
+        <input
+          className="w-full border rounded-lg px-3 py-2 mb-3"
+          placeholder="Color"
+          value={form.color}
+          disabled={loading}
+          onChange={(e) => setForm({ ...form, color: e.target.value })}
+        />
 
         <input
           type="number"
@@ -181,7 +210,12 @@ function EditDetailsModal({ open, onClose, product, onUpdated }) {
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg ${
+              loading
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
           >
             Cancel
           </button>
@@ -189,10 +223,12 @@ function EditDetailsModal({ open, onClose, product, onUpdated }) {
             onClick={handleUpdate}
             disabled={loading}
             className={`px-4 py-2 text-white rounded-lg ${
-              loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+              loading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? "Updating..." : "Save Changes"}
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
@@ -257,23 +293,36 @@ function EditQuantityModal({ open, onClose, product, onUpdated }) {
           <button
             onClick={() => updateQuantity("add")}
             disabled={loading}
-            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className={`flex-1 px-4 py-2 text-white rounded-lg ${
+              loading
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Add
+            {loading ? "Adding..." : "Add"}
           </button>
           <button
             onClick={() => updateQuantity("subtract")}
             disabled={loading}
-            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            className={`flex-1 px-4 py-2 text-white rounded-lg ${
+              loading
+                ? "bg-red-300 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
           >
-            Subtract
+            {loading ? "Removing..." : "Subtract"}
           </button>
         </div>
 
         <div className="text-right mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"
+            disabled={loading}
+            className={`px-4 py-2 rounded-lg ${
+              loading
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
           >
             Close
           </button>
@@ -292,7 +341,6 @@ function TransactionsModal({ open, onClose, product }) {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
       <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl w-full max-w-4xl p-6 relative border border-gray-200 animate-fadeIn">
-        
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-3 mb-6">
           <h2 className="text-3xl font-bold text-gray-800 tracking-wide">
@@ -318,7 +366,7 @@ function TransactionsModal({ open, onClose, product }) {
           <div className="overflow-y-auto max-h-[65vh] space-y-4 pr-2">
             {transactions.map((t, i) => (
               <div
-                key={t.id}
+                key={t.id || i}
                 className={`flex items-center justify-between rounded-2xl p-5 shadow-md border transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
                   t.type === "added"
                     ? "bg-green-50 border-green-200"
@@ -360,7 +408,6 @@ function TransactionsModal({ open, onClose, product }) {
           </div>
         )}
 
-        {/* Footer */}
         <div className="mt-8 flex justify-end">
           <button
             onClick={onClose}
@@ -384,7 +431,6 @@ export default function Products() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState(null);
   const [editDetailsOpen, setEditDetailsOpen] = useState(false);
   const [editQuantityOpen, setEditQuantityOpen] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
@@ -396,8 +442,7 @@ export default function Products() {
         axios.get(`${BASE_URL}/product`),
         axios.get(`${BASE_URL}/godown`),
       ]);
-      
-      console.log("📦 Product API Response:", pRes.data);
+
       const pData = Array.isArray(pRes.data)
         ? pRes.data
         : pRes.data?.data || [];
@@ -422,15 +467,12 @@ export default function Products() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      setDeletingId(id);
       await axios.delete(`${BASE_URL}/product/${id}`);
       alert("🗑️ Product deleted successfully!");
       load();
     } catch (err) {
       console.error("❌ Delete Error:", err);
       alert("Failed to delete product");
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -521,34 +563,37 @@ export default function Products() {
             return (
               <div
                 key={p._id || p.id}
-                onClick={() => {
-                  setSelectedProduct(p);
-                  setShowTransactions(true);
-                }}  
                 className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border border-gray-100 hover:-translate-y-1"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-lg text-gray-800 truncate">
-                      {p.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 truncate">
-                      {p.category} • {p.size}
-                    </p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Color: {p.color || "-"}
-                    </p>
+                <div
+                  onClick={() => {
+                    setSelectedProduct(p);
+                    setShowTransactions(true);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-lg text-gray-800 truncate">
+                        {p.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">
+                        {p.category} • {p.size}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Color: {p.color || "-"}
+                      </p>
+                    </div>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
+                    >
+                      {status.text}
+                    </span>
                   </div>
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${status.color}`}
-                  >
-                    {status.text}
-                  </span>
                 </div>
 
                 <div className="flex items-center justify-between mt-4">
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {/* Edit Details */}
+                  <div className="flex gap-2">
                     <button
                       onClick={() => {
                         setSelectedProduct(p);
@@ -560,7 +605,6 @@ export default function Products() {
                       <Pencil className="w-5 h-5" />
                     </button>
 
-                    {/* Edit Quantity */}
                     <button
                       onClick={() => {
                         setSelectedProduct(p);
@@ -572,7 +616,6 @@ export default function Products() {
                       <BarChart3 className="w-5 h-5" />
                     </button>
 
-                    {/* Delete */}
                     <button
                       onClick={() => handleDelete(p._id || p.id)}
                       className="p-2 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition transform hover:scale-110"
@@ -600,6 +643,7 @@ export default function Products() {
         onClose={() => setModalOpen(false)}
         godowns={godowns}
         onAdded={load}
+        existingCategories={categories}
       />
 
       <EditDetailsModal
@@ -620,7 +664,7 @@ export default function Products() {
         open={showTransactions}
         onClose={() => setShowTransactions(false)}
         product={selectedProduct}
-      /> 
+      />
     </div>
   );
 }

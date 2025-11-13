@@ -14,7 +14,6 @@ function TransactionsModal({ open, onClose, product }) {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
       <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-2xl w-full max-w-4xl p-6 relative border border-gray-200 animate-fadeIn">
-        
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-3 mb-6">
           <h2 className="text-3xl font-bold text-gray-800 tracking-wide">
@@ -38,7 +37,7 @@ function TransactionsModal({ open, onClose, product }) {
           </div>
         ) : (
           <div className="overflow-y-auto max-h-[65vh] space-y-4 pr-2">
-            {transactions.map((t, i) => (
+            {transactions.map((t) => (
               <div
                 key={t.id}
                 className={`flex items-center justify-between rounded-2xl p-5 shadow-md border transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
@@ -95,6 +94,7 @@ function TransactionsModal({ open, onClose, product }) {
     </div>
   );
 }
+
 export default function GodownDetails() {
   const { id } = useParams();
   const [godown, setGodown] = useState(null);
@@ -103,6 +103,10 @@ export default function GodownDetails() {
   const [editDetailsOpen, setEditDetailsOpen] = useState(false);
   const [editQuantityOpen, setEditQuantityOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [actionState, setActionState] = useState({
+    type: "", // "adding" | "saving" | "removing" | "addingProduct"
+    loading: false,
+  });
   const [newProduct, setNewProduct] = useState({
     category: "",
     name: "",
@@ -110,14 +114,12 @@ export default function GodownDetails() {
     color: "",
     quantity: "",
   });
-
-  // 🔍 Filter States
+  const categories = [...new Set((godown.products || []).map(p => p.category))];
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
-    const [showTransactions, setShowTransactions] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
 
-  // Load Godown Details
   const loadGodownDetails = async () => {
     try {
       setLoading(true);
@@ -132,13 +134,13 @@ export default function GodownDetails() {
     }
   };
 
-  // Add New Product
   const addProduct = async () => {
     if (!newProduct.name || !newProduct.category || !newProduct.size) {
       alert("Please fill all required fields (category, name, size)");
       return;
     }
     try {
+      setActionState({ type: "addingProduct", loading: true });
       await axios.post(`${BASE_URL}/godown/${id}/add-product`, newProduct);
       alert("✅ Product added successfully!");
       setShowModal(false);
@@ -149,29 +151,37 @@ export default function GodownDetails() {
         color: "",
         quantity: "",
       });
-      loadGodownDetails();
+      await loadGodownDetails();
     } catch (err) {
       console.error("❌ Error adding product:", err);
       alert("Failed to add product");
+    } finally {
+      setActionState({ type: "", loading: false });
     }
   };
 
-  // Delete Product
   const handleDelete = async (pid) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      await axios.delete(`${BASE_URL}/product/${pid}`);
+      setActionState({ type: "removing", loading: true });
+      await axios.delete(`${BASE_URL}/product`, { data: { id: pid } });
       alert("🗑️ Product deleted successfully!");
       loadGodownDetails();
     } catch (err) {
       console.error("❌ Delete Error:", err);
       alert("Failed to delete product");
+    } finally {
+      setActionState({ type: "", loading: false });
     }
   };
 
-  // Update Quantity
   const handleUpdateQuantity = async (type, val) => {
+    if (!val || Number(val) <= 0) {
+      alert("Please enter a valid quantity");
+      return;
+    }
     try {
+      setActionState({ type, loading: true });
       await axios.post(`${BASE_URL}/product/update-quantity`, {
         id: selectedProduct._id || selectedProduct.id,
         type,
@@ -183,12 +193,14 @@ export default function GodownDetails() {
     } catch (err) {
       console.error("❌ Update Error:", err);
       alert("Failed to update quantity");
+    } finally {
+      setActionState({ type: "", loading: false });
     }
   };
 
-  // Save Edited Product Details
   const handleSaveDetails = async () => {
     try {
+      setActionState({ type: "saving", loading: true });
       const updatedData = {
         id: selectedProduct._id || selectedProduct.id,
         name: selectedProduct.name,
@@ -199,10 +211,12 @@ export default function GodownDetails() {
       await axios.patch(`${BASE_URL}/product/update`, updatedData);
       alert("✅ Product details updated successfully!");
       setEditDetailsOpen(false);
-      loadGodownDetails();
+      await loadGodownDetails();
     } catch (err) {
       console.error("❌ Update Error:", err);
       alert("Failed to update product details");
+    } finally {
+      setActionState({ type: "", loading: false });
     }
   };
 
@@ -232,15 +246,12 @@ export default function GodownDetails() {
 
   const products = godown.products || [];
 
-  // 🔎 Filtering Logic
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory ? p.category === selectedCategory : true;
-
     const qty = Number(p.quantity);
     const stockStatus = qty === 0 ? "out" : qty <= 5 ? "low" : "in";
     const matchesStock = selectedStock ? stockStatus === selectedStock : true;
-
     return matchesSearch && matchesCategory && matchesStock;
   });
 
@@ -252,17 +263,26 @@ export default function GodownDetails() {
           <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
             {godown.name}
           </h2>
-          <p className="text-gray-500">
-            {godown.address || "No address available"}
-          </p>
+          <p className="text-gray-500">{godown.address || "No address available"}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
+            disabled={actionState.loading && actionState.type === "addingProduct"}
+            className={`flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-xl shadow transition-all duration-200 ${
+              actionState.loading && actionState.type === "addingProduct"
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+            }`}
           >
-            <PlusCircle size={18} /> Add Product
+            {actionState.loading && actionState.type === "addingProduct" ? (
+              "Adding..."
+            ) : (
+              <>
+                <PlusCircle size={18} /> Add Product
+              </>
+            )}
           </button>
 
           <Link
@@ -274,55 +294,15 @@ export default function GodownDetails() {
         </div>
       </div>
 
-      {/* Filters Section */}
-      <div className="bg-white p-4 mb-6 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="🔍 Search by product name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full sm:w-1/3 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"
-        />
-
-        {/* Category Filter */}
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="w-full sm:w-1/4 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"
-        >
-          <option value="">All Categories</option>
-          {[...new Set(products.map((p) => p.category))].map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
-
-        {/* Stock Filter */}
-        <select
-          value={selectedStock}
-          onChange={(e) => setSelectedStock(e.target.value)}
-          className="w-full sm:w-1/4 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"
-        >
-          <option value="">All Stock</option>
-          <option value="in">In Stock</option>
-          <option value="low">Low Stock</option>
-          <option value="out">Out of Stock</option>
-        </select>
-      </div>
-
-      {/* Product Cards */}
+      {/* Product List */}
       <h3 className="text-xl font-semibold text-gray-700 mb-4">
         Products in this Godown
       </h3>
 
       {filteredProducts.length === 0 ? (
-        <p className="text-gray-500 italic">
-          No products match your filters.
-        </p>
+        <p className="text-gray-500 italic">No products match your filters.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
           {filteredProducts.map((p) => {
             const qty = Number(p.quantity);
             const status =
@@ -338,8 +318,8 @@ export default function GodownDetails() {
                 onClick={() => {
                   setSelectedProduct(p);
                   setShowTransactions(true);
-                }}  
-                className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border border-gray-100 hover:-translate-y-1"
+                }}
+                className="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border border-gray-100 hover:-translate-y-1 w-full"
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
@@ -361,26 +341,48 @@ export default function GodownDetails() {
                 </div>
 
                 <div className="flex justify-between items-center mt-4">
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div
+                    className={`flex gap-2 transition-all duration-300 ${
+                      actionState.loading ? "opacity-50 scale-95" : "opacity-100 scale-100"
+                    }`}
+                  >
                     {/* Edit Details */}
                     <button
-                      onClick={() => {
+                      disabled={actionState.loading}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedProduct(p);
                         setEditDetailsOpen(true);
                       }}
-                      className="p-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 transition transform hover:scale-110"
+                      className={`p-2 rounded-full bg-blue-50 text-blue-700 transition transform
+                        ${
+                          actionState.loading
+                            ? "cursor-not-allowed"
+                            : "hover:bg-blue-100 hover:scale-110"
+                        }`}
                       title="Edit Details"
                     >
-                      <Pencil className="w-5 h-5" />
+                      {actionState.type === "saving" ? (
+                        <span className="text-sm font-medium animate-pulse">Saving...</span>
+                      ) : (
+                        <Pencil className="w-5 h-5" />
+                      )}
                     </button>
 
                     {/* Edit Quantity */}
                     <button
-                      onClick={() => {
+                      disabled={actionState.loading}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedProduct(p);
                         setEditQuantityOpen(true);
                       }}
-                      className="p-2 rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition transform hover:scale-110"
+                      className={`p-2 rounded-full bg-indigo-50 text-indigo-700 transition transform
+                        ${
+                          actionState.loading
+                            ? "cursor-not-allowed"
+                            : "hover:bg-indigo-100 hover:scale-110"
+                        }`}
                       title="Edit Quantity"
                     >
                       <BarChart3 className="w-5 h-5" />
@@ -388,18 +390,25 @@ export default function GodownDetails() {
 
                     {/* Delete */}
                     <button
-                      onClick={() => handleDelete(p._id || p.id)}
-                      className="p-2 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition transform hover:scale-110"
+                      disabled={actionState.loading}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(p._id || p.id);
+                      }}
+                      className={`p-2 rounded-full bg-red-50 text-red-700 transition transform
+                        ${
+                          actionState.loading
+                            ? "cursor-not-allowed"
+                            : "hover:bg-red-100 hover:scale-110"
+                        }`}
                       title="Delete"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-blue-900">
-                      {p.quantity}
-                    </div>
+                  <div className="text-right transition-all duration-300">
+                    <div className="text-3xl font-bold text-blue-900">{p.quantity}</div>
                     <div className="text-xs text-gray-500 uppercase">Qty</div>
                   </div>
                 </div>
@@ -408,13 +417,150 @@ export default function GodownDetails() {
           })}
         </div>
       )}
+
+      {/* TRANSACTIONS MODAL */}
       <TransactionsModal
         open={showTransactions}
         onClose={() => setShowTransactions(false)}
         product={selectedProduct}
-      /> 
-      {/* Modals (Add, Edit Details, Edit Quantity) — same as before */}
-      {/* Keep your modals exactly as you wrote, no change needed */}
+      />
+
+      {/* -------------------- EDIT DETAILS MODAL -------------------- */}
+      {/* -------------------- EDIT QUANTITY MODAL -------------------- */}
+{editQuantityOpen && selectedProduct && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-fadeIn">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        📊 Update Quantity — {selectedProduct.name}
+      </h2>
+
+      <input
+        id="quantity-input"
+        type="number"
+        min="1"
+        placeholder="Enter quantity"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-5"
+      />
+
+      <div className="flex justify-between">
+        <button
+          disabled={actionState.loading}
+          onClick={() => {
+            const val = document.getElementById("quantity-input").value;
+            handleUpdateQuantity("added", val);
+          }}
+          className={`px-5 py-2 rounded-lg text-white transition ${
+            actionState.loading
+              ? "bg-green-400 cursor-not-allowed opacity-70"
+              : "bg-green-600 hover:bg-green-700"
+          }`}
+        >
+          {actionState.type === "added" ? "Adding..." : "Add"}
+        </button>
+
+        <button
+          disabled={actionState.loading}
+          onClick={() => {
+            const val = document.getElementById("quantity-input").value;
+            handleUpdateQuantity("removed", val);
+          }}
+          className={`px-5 py-2 rounded-lg text-white transition ${
+            actionState.loading
+              ? "bg-red-400 cursor-not-allowed opacity-70"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
+        >
+          {actionState.type === "removed" ? "Removing..." : "Remove"}
+        </button>
+
+        <button
+          onClick={() => setEditQuantityOpen(false)}
+          className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
-  );
+  </div>
+)}
+
+{/* -------------------- ADD PRODUCT MODAL -------------------- */}
+{showModal && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-fadeIn">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">➕ Add New Product</h2>
+
+      <input
+  list="category-list"
+  type="text"
+  placeholder="Category"
+  value={newProduct.category}
+  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+  className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
+/>
+<datalist id="category-list">
+  {categories.map((cat, i) => (
+    <option key={i} value={cat} />
+  ))}
+</datalist>
+
+
+      <input
+        type="text"
+        placeholder="Name"
+        value={newProduct.name}
+        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+        className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
+      />
+
+      <input
+        type="text"
+        placeholder="Size"
+        value={newProduct.size}
+        onChange={(e) => setNewProduct({ ...newProduct, size: e.target.value })}
+        className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
+      />
+
+      <input
+        type="text"
+        placeholder="Color (optional)"
+        value={newProduct.color}
+        onChange={(e) => setNewProduct({ ...newProduct, color: e.target.value })}
+        className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
+      />
+
+      <input
+        type="number"
+        placeholder="Quantity (optional)"
+        value={newProduct.quantity}
+        onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+        className="w-full mb-5 border border-gray-300 rounded-lg px-3 py-2"
+      />
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+        >
+          Cancel
+        </button>
+        <button
+          disabled={actionState.loading && actionState.type === "addingProduct"}
+          onClick={addProduct}
+          className={`px-5 py-2 rounded-lg text-white transition ${
+            actionState.loading && actionState.type === "addingProduct"
+              ? "bg-blue-400 cursor-not-allowed opacity-70"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {actionState.loading && actionState.type === "addingProduct"
+            ? "Adding..."
+            : "Add"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+</div>
+);
 }
