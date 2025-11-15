@@ -76,10 +76,10 @@ export default function Dashboard() {
 
   // -------------------- UI --------------------
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       <header className="mb-10">
         <h2 className="text-3xl font-bold text-gray-800">
-          Inventory Dashboard
+          Dashboard
         </h2>
         <p className="text-gray-500 mt-2">Real-time insights into your stock and activity</p>
       </header>

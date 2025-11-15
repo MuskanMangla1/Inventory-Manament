@@ -114,7 +114,11 @@ export default function GodownDetails() {
     color: "",
     quantity: "",
   });
-  const categories = [...new Set((godown.products || []).map(p => p.category))];
+  const categories =
+  godown && godown.products
+    ? [...new Set(godown.products.map((p) => p.category))]
+    : [];
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
@@ -256,7 +260,7 @@ export default function GodownDetails() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8 bg-white border border-gray-200 p-5 rounded-2xl shadow-sm">
         <div>
@@ -491,19 +495,18 @@ export default function GodownDetails() {
       <h2 className="text-xl font-semibold mb-4 text-gray-800">➕ Add New Product</h2>
 
       <input
-  list="category-list"
-  type="text"
-  placeholder="Category"
-  value={newProduct.category}
-  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-  className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
-/>
-<datalist id="category-list">
-  {categories.map((cat, i) => (
-    <option key={i} value={cat} />
-  ))}
-</datalist>
-
+        list="category-list"
+        type="text"
+        placeholder="Category"
+        value={newProduct.category}
+        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+        className="w-full mb-3 border border-gray-300 rounded-lg px-3 py-2"
+      />
+      <datalist id="category-list">
+        {categories.map((cat, i) => (
+          <option key={i} value={cat} />
+        ))}
+      </datalist>
 
       <input
         type="text"
@@ -540,27 +543,28 @@ export default function GodownDetails() {
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setShowModal(false)}
-          className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+          className="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition"
         >
           Cancel
         </button>
         <button
-          disabled={actionState.loading && actionState.type === "addingProduct"}
           onClick={addProduct}
-          className={`px-5 py-2 rounded-lg text-white transition ${
+          disabled={actionState.loading && actionState.type === "addingProduct"}
+          className={`px-5 py-2 rounded-lg text-white ${
             actionState.loading && actionState.type === "addingProduct"
-              ? "bg-blue-400 cursor-not-allowed opacity-70"
+              ? "bg-blue-400 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
           {actionState.loading && actionState.type === "addingProduct"
             ? "Adding..."
-            : "Add"}
+            : "Add Product"}
         </button>
       </div>
     </div>
   </div>
 )}
+
 </div>
 );
 }

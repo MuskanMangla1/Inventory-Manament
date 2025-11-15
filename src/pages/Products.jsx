@@ -494,7 +494,7 @@ export default function Products() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-gray-800">Products</h2>
