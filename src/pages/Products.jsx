@@ -467,7 +467,10 @@ export default function Products() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
-      await axios.delete(`${BASE_URL}/product/${id}`);
+      await axios.delete(`${BASE_URL}/product`, {
+  data: { id },
+});
+
       alert("🗑️ Product deleted successfully!");
       load();
     } catch (err) {

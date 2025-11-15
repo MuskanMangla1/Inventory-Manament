@@ -118,73 +118,100 @@ export default function Dashboard() {
           {godowns.length === 0 ? (
             <EmptyData text="No godown data available" />
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={godowns.map((g, i) => ({ name: g.name, value: i + 1 }))}
-                  dataKey="value"
-                  outerRadius={120}
-                  label
-                >
-                  {godowns.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className=""> {/* Add padding here */}
+  <ResponsiveContainer width="100%" height={300}  className="p-4">
+    <PieChart>
+      <Pie
+        data={godowns.map((g, i) => ({ name: g.name, value: i + 1 }))}
+        dataKey="value"
+        outerRadius={120}
+        label
+      >
+        {godowns.map((_, i) => (
+          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip />
+      <Legend />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
+
           )}
         </ChartCard>
       </div>
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-10 hover:shadow-lg transition">
+  <h3 className="text-xl font-semibold text-gray-800 mb-4">🧾 Recent Transactions</h3>
 
-      {/* RECENT TRANSACTIONS */}
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-10 hover:shadow-lg transition">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">🧾 Recent Transactions</h3>
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-gray-700 rounded-lg">
-            <tr>
-              <th className="py-3 px-4 text-left">#</th>
-              <th className="py-3 px-4 text-left">Product</th>
-              <th className="py-3 px-4 text-left">Type</th>
-              <th className="py-3 px-4 text-left">Quantity</th>
-              <th className="py-3 px-4 text-left">Date</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {recentTransactions.map((t, i) => (
-              <tr
-                key={t.id}
-                className={`transition ${
-                  t.type === "Added" ? "hover:bg-green-50" : "hover:bg-red-50"
-                }`}
-              >
-                <td className="py-3 px-4 font-medium text-gray-700">{i + 1}</td>
-                <td className="py-3 px-4">{t.product}</td>
-                <td
-                  className={`py-3 px-4 font-semibold ${
-                    t.type === "Added" ? "text-green-700" : "text-red-700"
-                  }`}
-                >
-                  {t.type}
-                </td>
-                <td className="py-3 px-4">{t.quantity}</td>
-                <td className="py-3 px-4 text-gray-500">{t.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+  {/* Table view for medium and larger screens */}
+  <div className="overflow-x-auto hidden sm:block">
+    <table className="w-full text-sm">
+      <thead className="bg-gray-100 text-gray-700 rounded-lg">
+        <tr>
+          <th className="py-3 px-4 text-left">#</th>
+          <th className="py-3 px-4 text-left">Product</th>
+          <th className="py-3 px-4 text-left">Type</th>
+          <th className="py-3 px-4 text-left">Quantity</th>
+          <th className="py-3 px-4 text-left">Date</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {recentTransactions.map((t, i) => (
+          <tr
+            key={t.id}
+            className={`transition ${
+              t.type === "Added" ? "hover:bg-green-50" : "hover:bg-red-50"
+            }`}
+          >
+            <td className="py-3 px-4 font-medium text-gray-700">{i + 1}</td>
+            <td className="py-3 px-4">{t.product}</td>
+            <td
+              className={`py-3 px-4 font-semibold ${
+                t.type === "Added" ? "text-green-700" : "text-red-700"
+              }`}
+            >
+              {t.type}
+            </td>
+            <td className="py-3 px-4">{t.quantity}</td>
+            <td className="py-3 px-4 text-gray-500">{t.date}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 
-      {/* QUICK ACTIONS */}
-      <div className="flex flex-wrap justify-end gap-4">
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:scale-105 transition">
-          <PlusCircle size={18} /> Add New Product
-        </button>
-        <button className="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-green-700 hover:scale-105 transition">
-          <BarChart2 size={18} /> View All Transactions
-        </button>
+  {/* Card view for small screens */}
+  <div className="sm:hidden space-y-4">
+    {recentTransactions.map((t, i) => (
+      <div
+        key={t.id}
+        className={`border rounded-lg p-4 ${
+          t.type === "Added" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+        }`}
+      >
+        <div className="flex justify-between">
+          <span
+            className={`text-sm font-semibold ${
+              t.type === "Added" ? "text-green-700" : "text-red-700"
+            }`}
+          >
+            {t.type}
+          </span>
+        </div>
+        <p className="mt-2 text-gray-600">
+          <strong>Product:</strong> {t.product}
+        </p>
+        <p className="text-gray-600">
+          <strong>Quantity:</strong> {t.quantity}
+        </p>
+        <p className="text-gray-500 text-sm">
+          <strong>Date:</strong> {t.date}
+        </p>
       </div>
+    ))}
+  </div>
+</div>
+
     </div>
   );
 }
