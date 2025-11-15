@@ -1,5 +1,6 @@
 // src/pages/Stock.jsx
 import React, { useEffect, useState } from "react";
+import Select from "react-select";
 import axios from "axios";
 import {
   ArrowUpCircle,
@@ -98,23 +99,32 @@ export default function Stock() {
         ) : (
           <div className="space-y-6">
             {/* Product Select */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Product
-              </label>
-              <select
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
-                value={selected?._id || selected?.id || ""}
-                onChange={(e) => handleSelect(e.target.value)}
-              >
-                <option value="">-- Select a Product --</option>
-                {products.map((p) => (
-                  <option key={p._id || p.id} value={p._id || p.id}>
-                    {p.name} — {p.size}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Product Select */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Select Product
+  </label>
+  <Select
+    options={products.map((p) => ({
+      value: p._id || p.id,
+      label: `${p.name} — ${p.size} — ${p.color}`,
+    }))}
+    value={
+      selected
+        ? {
+            value: selected._id || selected.id,
+            label: `${selected.name} — ${selected.size}`,
+          }
+        : null
+    }
+    onChange={(option) => handleSelect(option.value)}
+    placeholder="Search or select a product..."
+    className="react-select-container"
+    classNamePrefix="react-select"
+    isSearchable
+  />
+</div>
+
 
             {/* Product Info */}
             {selected && (

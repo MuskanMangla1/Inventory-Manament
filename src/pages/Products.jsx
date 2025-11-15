@@ -492,7 +492,7 @@ export default function Products() {
     if (filter === "in") return Number(p.quantity) > 0;
     return true;
   });
-
+ 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-4">

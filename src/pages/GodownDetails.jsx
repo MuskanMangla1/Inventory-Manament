@@ -39,7 +39,7 @@ function TransactionsModal({ open, onClose, product }) {
           <div className="overflow-y-auto max-h-[65vh] space-y-4 pr-2">
             {transactions.map((t) => (
               <div
-                key={t.id}
+                key={t.created_at}
                 className={`flex items-center justify-between rounded-2xl p-5 shadow-md border transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
                   t.type === "added"
                     ? "bg-green-50 border-green-200"
@@ -63,8 +63,9 @@ function TransactionsModal({ open, onClose, product }) {
                     </span>
                   </p>
                   <p className="text-gray-500 text-sm font-mono mt-1 truncate">
-                    Transaction ID: {t.id}
-                  </p>
+  {t.created_at ? new Date(t.created_at).toLocaleString() : "N/A"}
+</p>
+
                 </div>
 
                 <div
@@ -129,6 +130,7 @@ export default function GodownDetails() {
       setLoading(true);
       const res = await axios.get(`${BASE_URL}/godown/${id}`);
       const data = res.data?.data || res.data;
+      console.log("📦 Godown Details:", data);
       setGodown(data);
     } catch (err) {
       console.error("❌ Error fetching godown details:", err);
