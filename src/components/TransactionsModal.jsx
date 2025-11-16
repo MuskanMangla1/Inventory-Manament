@@ -23,7 +23,7 @@ export default function TransactionsModal({ open, onClose, product }) {
           </div>
         ) : (
           <div className="overflow-y-auto max-h-[65vh] space-y-4 pr-2">
-            {transactions.map((t, i) => (
+            {[...transactions].reverse().map((t, i) => (
               <div
                 key={t.id || i}
                 className={`flex items-center justify-between rounded-2xl p-5 shadow-md border transition-all duration-300 hover:shadow-lg hover:scale-[1.01] ${
