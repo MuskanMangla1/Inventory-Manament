@@ -29,19 +29,16 @@ const Sidebar = () => {
   return (
     <>
       {/* 🌟 Mobile Header (only visible when sidebar is closed) */}
-      {!isOpen && (
-        <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-[50]">
-  <div className="flex space-x-2">
-    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-      <span className="text-white font-bold text-sm">IM</span>
-    </div>
-    <span className="text-lg font-semibold text-gray-800">
-      Inventory Management
-    </span>
-  </div>
-</div>
-
-      )}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-[50]">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">IM</span>
+          </div>
+          <span className="text-lg font-semibold text-gray-800">
+            Inventory Management
+          </span>
+        </div>
+      </div>
 
       {/* 🌟 Floating Menu Button */}
       {!isOpen && (
@@ -55,9 +52,9 @@ const Sidebar = () => {
 
       {/* 🧱 Sidebar */}
       <div
-        className={`fixed md:static top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-40 flex flex-col transform transition-transform duration-300 ease-in-out
+        className={`fixed md:static top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 z-40 flex flex-col transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-        md:translate-x-0 ${!isOpen ? "md:mt-0 mt-14" : "mt-0"}`}
+        md:translate-x-0`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
