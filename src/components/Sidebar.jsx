@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ onSidebarToggle }) => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,27 +24,32 @@ const Sidebar = () => {
     { path: "/godowns", name: "Godowns", icon: <Warehouse size={20} /> },
   ];
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+    if (onSidebarToggle) onSidebarToggle(!isOpen); // Pass the toggle to parent
+  };
 
   return (
     <>
-      {/* 🌟 Mobile Header (only visible when sidebar is closed) */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-[50]">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">IM</span>
+      {/* 🌟 Mobile Header (hidden when sidebar is open) */}
+      {!isOpen && (
+        <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 z-[40]">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">IM</span>
+            </div>
+            <span className="text-lg font-semibold text-gray-800">
+              Inventory Management
+            </span>
           </div>
-          <span className="text-lg font-semibold text-gray-800">
-            Inventory Management
-          </span>
         </div>
-      </div>
+      )}
 
       {/* 🌟 Floating Menu Button */}
       {!isOpen && (
         <button
           onClick={toggleSidebar}
-          className="fixed bottom-6 left-4 z-[60] bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 active:scale-95 transition-all duration-300 md:hidden"
+          className="fixed bottom-6 left-4 z-[50] bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 active:scale-95 transition-all duration-300 md:hidden"
         >
           <Menu size={22} />
         </button>
@@ -52,7 +57,7 @@ const Sidebar = () => {
 
       {/* 🧱 Sidebar */}
       <div
-        className={`fixed md:static top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 z-40 flex flex-col transform transition-transform duration-300 ease-in-out
+        className={`fixed md:static top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 z-[60] flex flex-col transform transition-transform duration-300
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
         md:translate-x-0`}
       >
@@ -62,9 +67,7 @@ const Sidebar = () => {
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">IM</span>
             </div>
-            <span className="text-xl font-semibold text-gray-800">
-              Inventory Man
-            </span>
+            <span className="text-xl font-semibold text-gray-800">Inventory Man</span>
           </div>
           <button
             onClick={toggleSidebar}
@@ -83,11 +86,10 @@ const Sidebar = () => {
                 key={item.name}
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 font-medium rounded-lg transition-all duration-200 
-                ${
-                  isActive
+                ${isActive
                     ? "bg-blue-50 text-blue-700 border-r-2 border-blue-600"
-                    : "text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-900"
-                }`}
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
               >
                 <span
                   className={`${
@@ -119,9 +121,9 @@ const Sidebar = () => {
       {/* 🔲 Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 backdrop-blur-sm bg-black/10 md:hidden z-30"
+          className="fixed inset-0 backdrop-blur-sm bg-black/30 md:hidden z-[50]"
           onClick={toggleSidebar}
-        ></div>
+        />
       )}
     </>
   );
