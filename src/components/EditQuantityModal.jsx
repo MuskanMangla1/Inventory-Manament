@@ -4,13 +4,17 @@ import axios from "axios";
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
 export default function EditQuantityModal({ open, onClose, product, onUpdated }) {
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(""); // Removed default 0
   const [loading, setLoading] = useState(false);
 
   if (!open || !product) return null;
 
   const updateQuantity = async (type) => {
-    if (loading) return;
+    if (loading || !amount || Number(amount) <= 0) {
+      alert("🚫 Please enter a valid positive number.");
+      return;
+    }
+
     try {
       setLoading(true);
       const payload = {
@@ -18,6 +22,7 @@ export default function EditQuantityModal({ open, onClose, product, onUpdated })
         type: type === "add" ? "added" : "subtracted",
         val: Number(amount),
       };
+
       await axios.post(`${BASE_URL}/product/update-quantity`, payload);
       alert("✅ Quantity updated!");
       onUpdated();
@@ -40,22 +45,27 @@ export default function EditQuantityModal({ open, onClose, product, onUpdated })
           className="w-full border rounded-lg px-3 py-2 mb-4"
           placeholder="Enter quantity amount"
           value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          onChange={(e) => setAmount(e.target.value)}
           disabled={loading}
+          min="1" // Prevents negative values
         />
 
         <div className="flex justify-between gap-3">
           <button
             onClick={() => updateQuantity("add")}
             disabled={loading}
-            className={`flex-1 px-4 py-2 text-white rounded-lg ${loading ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
+            className={`flex-1 px-4 py-2 text-white rounded-lg ${
+              loading ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+            }`}
           >
             {loading ? "Adding..." : "Add"}
           </button>
           <button
             onClick={() => updateQuantity("subtract")}
             disabled={loading}
-            className={`flex-1 px-4 py-2 text-white rounded-lg ${loading ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"}`}
+            className={`flex-1 px-4 py-2 text-white rounded-lg ${
+              loading ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+            }`}
           >
             {loading ? "Removing..." : "Subtract"}
           </button>
@@ -65,7 +75,9 @@ export default function EditQuantityModal({ open, onClose, product, onUpdated })
           <button
             onClick={onClose}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg ${loading ? "bg-gray-300 cursor-not-allowed" : "bg-gray-100 hover:bg-gray-200"}`}
+            className={`px-4 py-2 rounded-lg ${
+              loading ? "bg-gray-300 cursor-not-allowed" : "bg-gray-100 hover:bg-gray-200"
+            }`}
           >
             Close
           </button>
