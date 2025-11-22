@@ -10,8 +10,6 @@ export default function ProductFilters({
   setFilter,
   categories = [],
 }) {
-  const customCategories = ["Pipe", "Valve", "Fitting", "Joint"]; // FIXED
-
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* Search */}
@@ -26,24 +24,18 @@ export default function ProductFilters({
       <Select
         value={
           categoryFilter === "all"
-            ? { label: "Search Category", value: "all" }
+            ? { label: "Search Categories", value: "all" }
             : { label: categoryFilter, value: categoryFilter }
         }
         onChange={(selected) => setCategoryFilter(selected ? selected.value : "all")}
         options={[
-          { label: "All categories", value: "all" },
-          ...customCategories.map((c) => ({
-            label: c,
+          { label: "All Categories", value: "all" },
+          ...categories.map((c) => ({
+            label: c.charAt(0).toUpperCase() + c.slice(1),
             value: c,
           })),
-          ...categories
-            .filter((c) => !customCategories.includes(c))
-            .map((c) => ({
-              label: c.charAt(0).toUpperCase() + c.slice(1),
-              value: c,
-            })),
         ]}
-        className="w-full sm:w-50 "
+        className="w-full sm:w-50"
         classNamePrefix="react-select"
         isSearchable
         placeholder="Select category"
