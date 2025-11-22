@@ -10,7 +10,7 @@ import {
 import {
   PieChart,
   Pie,
-  Cell,
+  Cell, 
   BarChart,
   Bar,
   XAxis,
@@ -35,6 +35,9 @@ export default function Dashboard() {
         axios.get(`${BASE_URL}/product`),
         axios.get(`${BASE_URL}/godown`),
       ]);
+    console.log("Products Response:", pRes.data); // Products ka pura response
+    console.log("Godowns Response:", gRes.data);  // Godowns ka pura response
+
       setProducts(pRes.data?.data || pRes.data || []);
       setGodowns(gRes.data?.godowns || gRes.data?.data || []);
     } catch (err) {
@@ -119,32 +122,38 @@ export default function Dashboard() {
             <EmptyData text="No godown data available" />
           ) : (
             <div className=""> {/* Add padding here */}
-  <ResponsiveContainer width="100%" height={300}  className="p-4">
-    <PieChart>
-      <Pie
-        data={godowns.map((g, i) => ({ name: g.name, value: i + 1 }))}
-        dataKey="value"
-        outerRadius={120}
-        label
-      >
-        {godowns.map((_, i) => (
-          <Cell key={i} fill={COLORS[i % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-      <Legend />
-    </PieChart>
-  </ResponsiveContainer>
+  <ResponsiveContainer width="100%" height={300} className="p-4">
+  <PieChart>
+    <Pie
+      data={godowns.map(g => ({
+        name: g.name,
+        value: g.products 
+          ? g.products.reduce((sum, p) => sum + (Number(p.quantity) || 0), 0)
+          : 0
+      }))}
+      dataKey="value"
+      outerRadius={120}
+      label
+    >
+      {godowns.map((_, i) => (
+        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+      ))}
+    </Pie>
+    <Tooltip />
+    <Legend />
+  </PieChart>
+</ResponsiveContainer>
+
 </div>
 
           )}
         </ChartCard>
       </div>
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-10 hover:shadow-lg transition">
-  <h3 className="text-xl font-semibold text-gray-800 mb-4">🧾 Recent Transactions</h3>
+    {/* <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-10 hover:shadow-lg transition">
+        {/* <h3 className="text-xl font-semibold text-gray-800 mb-4">🧾 Recent Transactions</h3> */}
 
   {/* Table view for medium and larger screens */}
-  <div className="overflow-x-auto hidden sm:block">
+  {/* <div className="overflow-x-auto hidden sm:block">
     <table className="w-full text-sm">
       <thead className="bg-gray-100 text-gray-700 rounded-lg">
         <tr>
@@ -178,10 +187,10 @@ export default function Dashboard() {
         ))}
       </tbody>
     </table>
-  </div>
+  </div> */}
 
   {/* Card view for small screens */}
-  <div className="sm:hidden space-y-4">
+  {/* <div className="sm:hidden space-y-4">
     {recentTransactions.map((t, i) => (
       <div
         key={t.id}
@@ -210,7 +219,7 @@ export default function Dashboard() {
       </div>
     ))}
   </div>
-</div>
+</div> */}
 
     </div>
   );

@@ -4,9 +4,21 @@ import Select from "react-select";
 
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
-export default function AddProductModal({ open, onClose, godowns, onAdded, existingCategories }) {
-  const categoryOptions = existingCategories.map((cat) => ({ value: cat, label: cat }));
-  const [form, setForm] = useState({ name: "", category: "", size: "", color: "", quantity: 1, godownId: "" });
+// ✅ Define your manual categories here
+const categoriesList = ["Pipe", "Valve", "Sink", "Tonti", "pech"];
+
+export default function AddProductModal({ open, onClose, godowns, onAdded }) {
+  // Map the manual array to react-select format
+  const categoryOptions = categoriesList.map((cat) => ({ value: cat, label: cat }));
+
+  const [form, setForm] = useState({
+    name: "",
+    category: "",
+    size: "",
+    color: "",
+    quantity: 1,
+    godownId: "",
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,7 +32,8 @@ export default function AddProductModal({ open, onClose, godowns, onAdded, exist
 
   const handleAdd = async () => {
     if (loading) return;
-    if (!form.name.trim() || !form.category.trim()) return alert("Please enter product name and category");
+    if (!form.name.trim() || !form.category.trim())
+      return alert("Please enter product name and category");
     try {
       setLoading(true);
       await axios.post(`${BASE_URL}/godown/${form.godownId}/add-product`, form);
@@ -35,91 +48,125 @@ export default function AddProductModal({ open, onClose, godowns, onAdded, exist
     }
   };
 
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "2.5rem",
+      padding: "0.25rem 0.5rem",
+      boxShadow: state.isFocused
+        ? "0 0 0 2px rgba(59,130,246,0.3)"
+        : "0 1px 3px rgba(0,0,0,0.1)",
+      borderRadius: "0.5rem",
+      borderColor: state.isFocused ? "#2563eb" : "#d1d5db",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#9ca3af",
+    }),
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">Add New Product</h3>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 space-y-4">
+        <h3 className="text-xl font-semibold text-gray-800 text-center">Add New Product</h3>
 
         {/* Godown */}
-        <label className="text-sm text-gray-600 mb-1 block">Godown</label>
-        <select
-          value={form.godownId}
-          onChange={(e) => setForm({ ...form, godownId: e.target.value })}
-          disabled={loading}
-          className="w-full border rounded-lg px-3 py-2 mb-3 focus:ring-2 focus:ring-blue-400 outline-none"
-        >
-          {godowns.map((g) => (
-            <option key={g.id || g._id} value={g.id || g._id}>
-              {g.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Godown</label>
+          <select
+            value={form.godownId}
+            onChange={(e) => setForm({ ...form, godownId: e.target.value })}
+            disabled={loading}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
+          >
+            {godowns.map((g) => (
+              <option key={g.id || g._id} value={g.id || g._id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Name */}
-        <label className="text-sm text-gray-600 mb-1 block">Name</label>
-        <input
-          className="w-full border rounded-lg px-3 py-2 mb-3"
-          placeholder="Enter product name"
-          value={form.name}
-          disabled={loading}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Name</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
+            placeholder="Enter product name"
+            value={form.name}
+            disabled={loading}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+        </div>
 
         {/* Category */}
-        <label className="text-sm text-gray-600 mb-1 block">Category</label>
-        <Select
-          className="mb-3"
-          classNamePrefix="react-select"
-          options={categoryOptions}
-          onChange={(selected) => setForm({ ...form, category: selected.value })}
-          isDisabled={loading}
-          placeholder="Select category"
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Category</label>
+          <Select
+            className="w-full"
+            classNamePrefix="react-select"
+            options={categoryOptions}
+            onChange={(selected) => setForm({ ...form, category: selected.value })}
+            isDisabled={loading}
+            placeholder="Select category"
+            styles={customSelectStyles}
+          />
+        </div>
 
         {/* Size */}
-        <label className="text-sm text-gray-600 mb-1 block">Size</label>
-        <input
-          className="w-full border rounded-lg px-3 py-2 mb-3"
-          placeholder="Enter size"
-          value={form.size}
-          disabled={loading}
-          onChange={(e) => setForm({ ...form, size: e.target.value })}
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Size</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
+            placeholder="Enter size"
+            value={form.size}
+            disabled={loading}
+            onChange={(e) => setForm({ ...form, size: e.target.value })}
+          />
+        </div>
 
         {/* Color */}
-        <label className="text-sm text-gray-600 mb-1 block">Color</label>
-        <input
-          className="w-full border rounded-lg px-3 py-2 mb-3"
-          placeholder="Enter color"
-          value={form.color}
-          disabled={loading}
-          onChange={(e) => setForm({ ...form, color: e.target.value })}
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Color</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
+            placeholder="Enter color"
+            value={form.color}
+            disabled={loading}
+            onChange={(e) => setForm({ ...form, color: e.target.value })}
+          />
+        </div>
 
         {/* Quantity */}
-        <label className="text-sm text-gray-600 mb-1 block">Quantity</label>
-        <input
-          type="number"
-          min="0"
-          className="w-full border rounded-lg px-3 py-2 mb-4"
-          placeholder="Enter quantity"
-          value={form.quantity}
-          disabled={loading}
-          onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })}
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-gray-700 mb-1">Quantity</label>
+          <input
+            type="number"
+            min="0"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
+            placeholder="Enter quantity"
+            value={form.quantity}
+            disabled={loading}
+            onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })}
+          />
+        </div>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-3 mt-2">
           <button
             disabled={loading}
             onClick={onClose}
-            className={`px-4 py-2 rounded-lg ${loading ? "bg-gray-300 cursor-not-allowed" : "bg-gray-200 hover:bg-gray-300"}`}
+            className={`px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 ${
+              loading ? "cursor-not-allowed bg-gray-300" : ""
+            }`}
           >
             Cancel
           </button>
           <button
             disabled={loading}
             onClick={handleAdd}
-            className={`px-4 py-2 text-white rounded-lg ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-900 hover:bg-blue-800"}`}
+            className={`px-4 py-2 rounded-lg text-white bg-blue-900 hover:bg-blue-800 ${
+              loading ? "cursor-not-allowed bg-blue-400" : ""
+            }`}
           >
             {loading ? "Adding..." : "Add Product"}
           </button>

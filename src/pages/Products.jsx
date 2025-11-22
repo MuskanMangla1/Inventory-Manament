@@ -100,12 +100,13 @@ export default function Products() {
           />
 
           <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
-          >
-            <PlusCircle size={18} />
-            Add Product
-          </button>
+  onClick={() => setModalOpen(true)}
+  className="w-full sm:w-auto flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
+>
+  <PlusCircle size={18} />
+  Add Product
+</button>
+
         </div>
       </div>
 

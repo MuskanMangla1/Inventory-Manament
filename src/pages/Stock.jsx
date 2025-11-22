@@ -118,7 +118,7 @@ export default function Stock() {
         : null
     }
     onChange={(option) => handleSelect(option.value)}
-    placeholder="Search or select a product..."
+    placeholder="Search a product..."
     className="react-select-container"
     classNamePrefix="react-select"
     isSearchable
