@@ -5,7 +5,7 @@ import Select from "react-select";
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
 // ✅ Define your manual categories here
-const categoriesList = ["Tank", "Sink", "MainHole", "PVC Pipe", "CPVC Pipe", "UPVC Pipe", "Paint", "Sistan", "Garden Pipe", "Fitting"];
+const categoriesList = ["Tank", "Sink", "ManHole", "PVC Pipe", "CPVC Pipe", "UPVC Pipe", "Paint", "Sistan", "Garden Pipe", "Fitting"];
 
 export default function AddProductModal({ open, onClose, godowns, onAdded }) {
   // Map the manual array to react-select format
@@ -16,7 +16,7 @@ export default function AddProductModal({ open, onClose, godowns, onAdded }) {
     category: "",
     size: "",
     color: "",
-    quantity: 1,
+    quantity: null,
     godownId: "",
   });
   const [loading, setLoading] = useState(false);
@@ -142,12 +142,12 @@ export default function AddProductModal({ open, onClose, godowns, onAdded }) {
           <label className="text-sm text-gray-700 mb-1">Quantity</label>
           <input
             type="number"
-            min="0"
+            min={0}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none shadow-sm"
             placeholder="Enter quantity"
             value={form.quantity}
             disabled={loading}
-            onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })}
+            onChange={(e) => setForm({ ...form, quantity: e.target.value })}
           />
         </div>
 
