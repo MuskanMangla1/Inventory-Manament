@@ -6,7 +6,7 @@ export default function ProductCard({ product, onEditDetails, onEditQuantity, on
   const status =
     qty === 0
       ? { text: "Out of Stock", color: "bg-red-100 text-red-800" }
-      : qty <= 5
+      : qty <= 10
       ? { text: "Low Stock", color: "bg-yellow-100 text-yellow-800" }
       : { text: "In Stock", color: "bg-green-100 text-green-800" };
 

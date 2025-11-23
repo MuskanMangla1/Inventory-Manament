@@ -61,7 +61,7 @@ export default function Dashboard() {
 
   // -------------------- METRICS --------------------
   const totalStock = products.reduce((sum, p) => sum + (Number(p.quantity) || 0), 0);
-  const lowStockCount = products.filter((p) => Number(p.quantity) <= 5).length;
+  const lowStockCount = products.filter((p) => Number(p.quantity) <= 10).length;
 
   const categoryData = Object.entries(
     products.reduce((acc, p) => {

@@ -61,7 +61,7 @@ export default function GodownDetails() {
     const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" ? true : p.category === selectedCategory;
     const qty = Number(p.quantity);
-    const stockStatus = qty === 0 ? "out" : qty <= 5 ? "low" : "in";
+    const stockStatus = qty === 0 ? "out" : qty <= 10 ? "low" : "in";
     const matchesStock = selectedStock === "all" ? true : stockStatus === selectedStock;
     return matchesSearch && matchesCategory && matchesStock;
   });
