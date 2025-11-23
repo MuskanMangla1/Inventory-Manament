@@ -69,37 +69,33 @@ export default function Godowns() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between mb-10">
+      <div className="flex flex-col sm:flex-row justify-between md:mb-4">
         <div className="sm:text-left mb-4 sm:mb-0">
           <h2 className="text-3xl font-bold text-gray-800">Godowns</h2>
           <p className="text-gray-500 mt-2">Manage your warehouse locations</p>
         </div>
+</div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+<div className="flex flex-col sm:flex-row space-between items-center gap-3 w-full mb-8">
   {/* Search Input */}
-  <div className="w-full">
-    <Search
-      size={18}
-      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-    />
+  <div className="w-full md:w-3/4">
     <input
       name="search"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
       placeholder="Search by name or location"
-      className="pl-9 pr-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 outline-none transition-all duration-200"
+      className="pl-4 pr-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 outline-none transition-all duration-200"
     />
   </div>
 
   {/* Add Godown Button */}
   <button
     onClick={() => setShowModal(true)}
-    className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200 w-full sm:w-auto"
+    className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200 w-full md:w-auto"
   >
     <PlusCircle size={18} />
     Add Godown
   </button>
-</div>
 
       </div>
 

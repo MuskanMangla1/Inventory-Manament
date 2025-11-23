@@ -81,14 +81,15 @@ export default function Products() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-16 md:pt-2">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-6 gap-4">
         <div>
           <h2 className="text-3xl font-extrabold text-gray-900">Products</h2>
           <p className="text-gray-500 mt-2">Manage your product inventory efficiently</p>
         </div>
+      </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
           <ProductFilters
             searchTerm={q}
             setSearchTerm={setQ}
@@ -100,14 +101,12 @@ export default function Products() {
           />
 
           <button
-  onClick={() => setModalOpen(true)}
-  className="w-full sm:w-auto flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
->
-  <PlusCircle size={18} />
-  Add Product
-</button>
-
-        </div>
+            onClick={() => setModalOpen(true)}
+            className="w-full md:w-50 sm:w-auto flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
+          >
+            <PlusCircle size={18} />
+            Add Product
+          </button>
       </div>
 
       {loading ? (

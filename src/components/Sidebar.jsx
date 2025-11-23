@@ -108,11 +108,11 @@ const Sidebar = ({ onSidebarToggle }) => {
         <div className="p-4 border-t border-gray-200 mt-auto">
           <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">JD</span>
+              <span className="text-white font-bold text-sm">MH</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">John Doe</p>
-              <p className="text-xs text-gray-500">Admin User</p>
+              <p className="text-sm font-medium text-gray-800">welcome</p>
+              <p className="text-xs text-gray-500">Mangla Hardware</p>
             </div>
           </div>
         </div>

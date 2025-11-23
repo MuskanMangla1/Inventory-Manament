@@ -92,7 +92,7 @@ export default function GodownDetails() {
       </div>
 
       {/* Filters + Add Product Button */}
-      <div className="flex flex-col md:flex-row md:items-end gap-4 mb-6 w-full">
+      <div className="flex flex-col md:flex-row md:items-end mb-6 w-full">
         <ProductFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -106,7 +106,7 @@ export default function GodownDetails() {
 
         <button
           onClick={() => setShowAddProduct(true)}
-          className="w-full md:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200 font-semibold flex items-center justify-center gap-2"
+          className="w-full md:w-50 bg-blue-600 text-white px-5 py-2.5 rounded-xl shadow hover:bg-blue-700 hover:shadow-lg transition-all duration-200 font-semibold flex items-center justify-center"
         >
           <PlusCircle size={18} />
           Add Product

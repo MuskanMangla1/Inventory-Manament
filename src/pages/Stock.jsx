@@ -229,7 +229,7 @@ export default function Stock() {
       </div>
 
       {/* Recent Transactions */}
-      <div className="w-full mt-16">
+      {/* <div className="w-full mt-16">
         <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Clock className="w-5 h-5 text-blue-600" />
           Recent Transactions
@@ -270,7 +270,7 @@ export default function Stock() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import {
   Legend,
 } from "recharts";
 import axios from "axios";
+import Products from "./Products";
 
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
@@ -149,6 +150,7 @@ export default function Dashboard() {
           )}
         </ChartCard>
       </div>
+
     {/* <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 mb-10 hover:shadow-lg transition">
         {/* <h3 className="text-xl font-semibold text-gray-800 mb-4">🧾 Recent Transactions</h3> */}
 

@@ -5,7 +5,7 @@ import Select from "react-select";
 const BASE_URL = "https://inventory-management-k328.onrender.com";
 
 // ✅ Define your manual categories here
-const categoriesList = ["Pipe", "Valve", "Sink", "Tonti", "pech"];
+const categoriesList = ["Tank", "Sink", "MainHole", "PVC Pipe", "CPVC Pipe", "UPVC Pipe", "Paint", "Sistan", "Garden Pipe", "Fitting"];
 
 export default function AddProductModal({ open, onClose, godowns, onAdded }) {
   // Map the manual array to react-select format
