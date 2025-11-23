@@ -113,7 +113,7 @@ export default function Stock() {
       selected
         ? {
             value: selected._id || selected.id,
-            label: `${selected.name} — ${selected.size}`,
+            label: `${selected.name} — ${selected.size} — ${selected.color}`,
           }
         : null
     }

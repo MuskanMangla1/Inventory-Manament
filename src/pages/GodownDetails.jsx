@@ -79,7 +79,7 @@ export default function GodownDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow flex-wrap">
         <Link
