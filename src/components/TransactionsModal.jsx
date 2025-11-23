@@ -12,7 +12,7 @@ export default function TransactionsModal({ open, onClose, product }) {
         <div className="flex items-center justify-between border-b pb-3 mb-6">
           <div>
               <h2 className="md:text-3xl font-bold text-gray-800 tracking-wide flex flex-col md:flex-row md:gap-2">
-              <span>🧾 Transaction History —</span> <span className="text-blue-600">{product.name}</span>
+              <span>🧾 Transaction History —</span> <span className="text-blue-600 ml-7 md:ml-0">{product.name}</span>
             </h2>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800 transition text-2xl font-bold">✕</button>

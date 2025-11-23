@@ -92,7 +92,7 @@ export default function GodownDetails() {
       </div>
 
       {/* Filters + Add Product Button */}
-      <div className="flex flex-col md:flex-row md:items-end mb-6 w-full">
+      <div className="flex flex-col md:flex-row md:items-end mb-6 w-full gap-4">
         <ProductFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
