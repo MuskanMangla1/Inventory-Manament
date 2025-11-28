@@ -41,7 +41,7 @@ export default function TransactionsModal({ open, onClose, product }) {
                   <p className="text-gray-600 text-base">
                     Quantity: <span className="font-semibold text-gray-800 mt-1">{t.quantity}</span>
                   </p>
-                  <p className="text-gray-500 text-sm font-mono mt-1 truncate">{new Date(t.created_at).toLocaleDateString("en-GB")}</p>
+                  <p className="text-gray-500 text-sm font-mono mt-1 truncate">{new Date(t.createdAt).toLocaleDateString("en-GB")}</p>
                 </div>
               </div>
             ))}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function EditQuantityModal({ open, onClose, product, onUpdated }) {
   const [amount, setAmount] = useState("");

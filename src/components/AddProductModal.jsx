@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 // ✅ Define your manual categories here
 const categoriesList = ["Tank", "Sink", "ManHole", "PVC Pipe", "CPVC Pipe", "UPVC Pipe", "Paint", "Sistan", "Garden Pipe", "Fitting" , "Drum" , "Roll Pipe" , "Seat Cover" , "Fan" , "Fevicol"];

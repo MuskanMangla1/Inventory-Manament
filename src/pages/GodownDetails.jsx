@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
 
-// Components
 import ProductCard from "../components/ProductCard.jsx";
 import AddProductModal from "../components/AddProductModal.jsx";
 import TransactionsModal from "../components/TransactionsModal.jsx";
@@ -11,14 +10,14 @@ import EditDetailsModal from "../components/EditDetailsModal.jsx";
 import EditQuantityModal from "../components/EditQuantityModal.jsx";
 import ProductFilters from "../components/ProductFilters.jsx";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function GodownDetails() {
   const { id } = useParams();
   const [godown, setGodown] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Modals & Selected Product
+  // Product Actions
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showTransactions, setShowTransactions] = useState(false);
   const [showEditDetails, setShowEditDetails] = useState(false);
@@ -30,20 +29,24 @@ export default function GodownDetails() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStock, setSelectedStock] = useState("all");
 
-  const loadGodownDetails = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`${BASE_URL}/godown/${id}`);
-      setGodown(res.data?.data || res.data);
-    } catch (err) {
-      console.error("❌ Error loading godown:", err);
-      alert("Failed to load godown details");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // NEW FILTER STATES
+  const [selectedColor, setSelectedColor] = useState("all");
+  const [selectedSize, setSelectedSize] = useState("all");
 
   useEffect(() => {
+    const loadGodownDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${BASE_URL}/godown/${id}`);
+        setGodown(res.data?.data || res.data);
+      } catch (err) {
+        console.error("❌ Error loading godown:", err);
+        alert("Failed to load godown details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadGodownDetails();
   }, [id]);
 
@@ -51,27 +54,44 @@ export default function GodownDetails() {
   if (!godown) return <p className="p-6 text-center text-gray-500">Godown not found.</p>;
 
   const products = godown.products || [];
- const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
 
+  // Unique Categories
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
 
+  // NEW: Unique Colors & Sizes
+  const colors = [...new Set(products.map((p) => p.color).filter(Boolean))];
+  const sizes = [...new Set(products.map((p) => p.size).filter(Boolean))];
 
-
-  // Apply filters
+  // APPLY FILTERS
   const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" ? true : p.category === selectedCategory;
+    const matchesSearch =
+      p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+    const matchesColor = selectedColor === "all" || p.color === selectedColor;
+    const matchesSize = selectedSize === "all" || p.size === selectedSize;
+
     const qty = Number(p.quantity);
     const stockStatus = qty === 0 ? "out" : qty <= 10 ? "low" : "in";
-    const matchesStock = selectedStock === "all" ? true : stockStatus === selectedStock;
-    return matchesSearch && matchesCategory && matchesStock;
+    const matchesStock = selectedStock === "all" || stockStatus === selectedStock;
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesColor &&
+      matchesSize &&
+      matchesStock
+    );
   });
 
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
+
     try {
       await axios.delete(`${BASE_URL}/product`, { data: { id: productId } });
       alert("🗑️ Product deleted successfully!");
-      loadGodownDetails();
+      window.location.reload();
     } catch (err) {
       console.error("❌ Delete Error:", err);
       alert("Failed to delete product");
@@ -91,7 +111,7 @@ export default function GodownDetails() {
         <h1 className="text-2xl font-extrabold text-gray-800">{godown.name}</h1>
       </div>
 
-      {/* Filters + Add Product Button */}
+      {/* Filters */}
       <div className="flex flex-col md:flex-row md:items-end mb-6 w-full gap-4">
         <ProductFilters
           searchTerm={searchTerm}
@@ -101,7 +121,13 @@ export default function GodownDetails() {
           filter={selectedStock}
           setFilter={setSelectedStock}
           categories={categories}
-          className="flex-1 w-full"
+          // NEW
+          colors={colors}
+          sizes={sizes}
+          colorFilter={selectedColor}
+          setColorFilter={setSelectedColor}
+          sizeFilter={selectedSize}
+          setSizeFilter={setSelectedSize}
         />
 
         <button
@@ -113,7 +139,7 @@ export default function GodownDetails() {
         </button>
       </div>
 
-      {/* Products Grid */}
+      {/* Products */}
       {filteredProducts.length === 0 ? (
         <p className="text-center text-gray-500 py-10 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
           No products found.
@@ -154,13 +180,11 @@ export default function GodownDetails() {
             open={showEditDetails}
             onClose={() => setShowEditDetails(false)}
             product={selectedProduct}
-            onUpdated={loadGodownDetails}
           />
           <EditQuantityModal
             open={showEditQuantity}
             onClose={() => setShowEditQuantity(false)}
             product={selectedProduct}
-            onUpdated={loadGodownDetails}
           />
         </>
       )}
@@ -169,7 +193,7 @@ export default function GodownDetails() {
         open={showAddProduct}
         onClose={() => setShowAddProduct(false)}
         godowns={[godown]}
-        onAdded={loadGodownDetails}
+        onAdded={() => window.location.reload()}
         existingCategories={categories}
       />
     </div>

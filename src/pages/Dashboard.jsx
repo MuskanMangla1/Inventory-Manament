@@ -22,7 +22,7 @@ import {
 import axios from "axios";
 import Products from "./Products";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 // -------------------- DASHBOARD COMPONENT --------------------
 export default function Dashboard() {

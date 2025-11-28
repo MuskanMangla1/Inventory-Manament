@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Warehouse, MapPin, PlusCircle, Search } from "lucide-react";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function Godowns() {
   const [godowns, setGodowns] = useState([]);

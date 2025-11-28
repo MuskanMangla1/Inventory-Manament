@@ -1,27 +1,36 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
+
 import ProductCard from "../components/ProductCard.jsx";
 import AddProductModal from "../components/AddProductModal.jsx";
 import EditDetailsModal from "../components/EditDetailsModal.jsx";
 import EditQuantityModal from "../components/EditQuantityModal.jsx";
 import TransactionsModal from "../components/TransactionsModal.jsx";
 import ProductFilters from "../components/ProductFilters.jsx";
+import FiltersModal from "../components/FiltersModal.jsx";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [godowns, setGodowns] = useState([]);
+
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  
+  // NEW FILTER STATES (same as GodownDetails)
+  const [selectedColor, setSelectedColor] = useState("all");
+  const [selectedSize, setSelectedSize] = useState("all");
+
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editDetailsOpen, setEditDetailsOpen] = useState(false);
   const [editQuantityOpen, setEditQuantityOpen] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const load = async () => {
     try {
@@ -61,23 +70,39 @@ export default function Products() {
     }
   };
 
-  const categoriesFromProducts = Array.from(
-    new Set(products.map((p) => p.category).filter(Boolean))
-  );
+  // Unique categories, colors, sizes
+  const categoriesFromProducts = [...new Set(products.map((p) => p.category).filter(Boolean))];
+  const colorsFromProducts = [...new Set(products.map((p) => p.color).filter(Boolean))];
+  const sizesFromProducts = [...new Set(products.map((p) => p.size).filter(Boolean))];
+  const resetFilters = () => {
+  setCategoryFilter("all");
+  setSelectedColor("all");
+  setSelectedSize("all");
+  setFilter("all");
+};
 
-  // Apply filters
+  // APPLY FILTERS (same as GodownDetails)
   const filtered = products.filter((p) => {
-    const nameMatch = q
-      ? (p.name || "").toLowerCase().includes(q.toLowerCase()) ||
-        (p.category || "").toLowerCase().includes(q.toLowerCase())
-      : true;
+    const matchesSearch =
+      q === "" ||
+      p.name?.toLowerCase().includes(q.toLowerCase()) ||
+      p.category?.toLowerCase().includes(q.toLowerCase());
 
-    if (!nameMatch) return false;
-    if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
-    if (filter === "low") return Number(p.quantity) <= 10;
-    if (filter === "out") return Number(p.quantity) === 0;
-    if (filter === "in") return Number(p.quantity) > 0;
-    return true;
+    const matchesCategory = categoryFilter === "all" || p.category === categoryFilter;
+    const matchesColor = selectedColor === "all" || p.color === selectedColor;
+    const matchesSize = selectedSize === "all" || p.size === selectedSize;
+
+    const qty = Number(p.quantity);
+    const stockStatus = qty === 0 ? "out" : qty <= 10 ? "low" : "in";
+    const matchesStock = filter === "all" || filter === stockStatus;
+    
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesColor &&
+      matchesSize &&
+      matchesStock
+    );
   });
 
   return (
@@ -89,24 +114,22 @@ export default function Products() {
         </div>
       </div>
 
+      {/* FILTER SECTION */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-          <ProductFilters
-            searchTerm={q}
-            setSearchTerm={setQ}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            filter={filter}
-            setFilter={setFilter}
-            categories={categoriesFromProducts}
-          />
+        <ProductFilters
+  searchTerm={q}
+  setSearchTerm={setQ}
+  openFilters={() => setFiltersOpen(true)}
+/>
 
-          <button
-            onClick={() => setModalOpen(true)}
-            className="w-full md:w-50 sm:w-auto flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
-          >
-            <PlusCircle size={18} />
-            Add Product
-          </button>
+
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full md:w-50 sm:w-auto flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
+        >
+          <PlusCircle size={18} />
+          Add Product
+        </button>
       </div>
 
       {loading ? (
@@ -119,17 +142,17 @@ export default function Products() {
             <ProductCard
               key={p._id || p.id}
               product={p}
-              onEditDetails={(product) => {
-                setSelectedProduct(product);
+              onEditDetails={() => {
+                setSelectedProduct(p);
                 setEditDetailsOpen(true);
               }}
-              onEditQuantity={(product) => {
-                setSelectedProduct(product);
+              onEditQuantity={() => {
+                setSelectedProduct(p);
                 setEditQuantityOpen(true);
               }}
               onDelete={handleDelete}
-              onShowTransactions={(product) => {
-                setSelectedProduct(product);
+              onShowTransactions={() => {
+                setSelectedProduct(p);
                 setShowTransactions(true);
               }}
             />
@@ -164,6 +187,23 @@ export default function Products() {
         onClose={() => setShowTransactions(false)}
         product={selectedProduct}
       />
+      <FiltersModal
+  open={filtersOpen}
+  onClose={() => setFiltersOpen(false)}
+  categories={categoriesFromProducts}
+  colors={colorsFromProducts}
+  sizes={sizesFromProducts}
+  categoryFilter={categoryFilter}
+  setCategoryFilter={setCategoryFilter}
+  colorFilter={selectedColor}
+  setColorFilter={setSelectedColor}
+  sizeFilter={selectedSize}
+  setSizeFilter={setSelectedSize}
+  stockFilter={filter}
+  setStockFilter={setFilter}
+  resetFilters={resetFilters}
+/>
+
     </div>
   );
 }

@@ -12,7 +12,7 @@ import {
   Layers,
 } from "lucide-react";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function Stock() {
   const [products, setProducts] = useState([]);

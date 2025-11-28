@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "https://inventory-management-k328.onrender.com";
+const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
 export default function EditDetailsModal({ open, onClose, product, onUpdated }) {
   const [form, setForm] = useState({ name: "", category: "", size: "", color: "" });
