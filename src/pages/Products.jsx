@@ -116,12 +116,28 @@ export default function Products() {
 
       {/* FILTER SECTION */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-        <ProductFilters
-  searchTerm={q}
-  setSearchTerm={setQ}
-  openFilters={() => setFiltersOpen(true)}
-/>
-
+        <div className="flex items-center gap-3 w-full">
+          <ProductFilters
+            searchTerm={q}
+            setSearchTerm={setQ}
+          />
+          <FiltersModal
+            open={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+            categories={categoriesFromProducts}
+            colors={colorsFromProducts}
+            sizes={sizesFromProducts}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            colorFilter={selectedColor}
+            setColorFilter={setSelectedColor}
+            sizeFilter={selectedSize}
+            setSizeFilter={setSelectedSize}
+            stockFilter={filter}
+            setStockFilter={setFilter}
+            resetFilters={resetFilters}
+          />
+        </div>
 
         <button
           onClick={() => setModalOpen(true)}
@@ -187,23 +203,6 @@ export default function Products() {
         onClose={() => setShowTransactions(false)}
         product={selectedProduct}
       />
-      <FiltersModal
-  open={filtersOpen}
-  onClose={() => setFiltersOpen(false)}
-  categories={categoriesFromProducts}
-  colors={colorsFromProducts}
-  sizes={sizesFromProducts}
-  categoryFilter={categoryFilter}
-  setCategoryFilter={setCategoryFilter}
-  colorFilter={selectedColor}
-  setColorFilter={setSelectedColor}
-  sizeFilter={selectedSize}
-  setSizeFilter={setSelectedSize}
-  stockFilter={filter}
-  setStockFilter={setFilter}
-  resetFilters={resetFilters}
-/>
-
     </div>
   );
 }
