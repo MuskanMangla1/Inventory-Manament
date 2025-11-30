@@ -9,6 +9,7 @@ import TransactionsModal from "../components/TransactionsModal.jsx";
 import EditDetailsModal from "../components/EditDetailsModal.jsx";
 import EditQuantityModal from "../components/EditQuantityModal.jsx";
 import ProductFilters from "../components/ProductFilters.jsx";
+import FiltersModal from "../components/FiltersModal.jsx";
 
 const BASE_URL = "https://inventorymanagementnode.onrender.com";
 
@@ -32,6 +33,9 @@ export default function GodownDetails() {
   // NEW FILTER STATES
   const [selectedColor, setSelectedColor] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
+  
+  // FiltersModal state
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     const loadGodownDetails = async () => {
@@ -85,6 +89,14 @@ export default function GodownDetails() {
     );
   });
 
+  // Reset filters function
+  const resetFilters = () => {
+    setSelectedCategory("all");
+    setSelectedColor("all");
+    setSelectedSize("all");
+    setSelectedStock("all");
+  };
+
   const handleDelete = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
@@ -113,22 +125,39 @@ export default function GodownDetails() {
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row md:items-end mb-6 w-full gap-4">
-        <ProductFilters
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          categoryFilter={selectedCategory}
-          setCategoryFilter={setSelectedCategory}
-          filter={selectedStock}
-          setFilter={setSelectedStock}
-          categories={categories}
-          // NEW
-          colors={colors}
-          sizes={sizes}
-          colorFilter={selectedColor}
-          setColorFilter={setSelectedColor}
-          sizeFilter={selectedSize}
-          setSizeFilter={setSelectedSize}
-        />
+        <div className="flex items-center gap-3 w-full">
+          <ProductFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            categoryFilter={selectedCategory}
+            setCategoryFilter={setSelectedCategory}
+            filter={selectedStock}
+            setFilter={setSelectedStock}
+            categories={categories}
+            colors={colors}
+            sizes={sizes}
+            colorFilter={selectedColor}
+            setColorFilter={setSelectedColor}
+            sizeFilter={selectedSize}
+            setSizeFilter={setSelectedSize}
+          />
+          <FiltersModal
+            open={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+            categories={categories}
+            colors={colors}
+            sizes={sizes}
+            categoryFilter={selectedCategory}
+            setCategoryFilter={setSelectedCategory}
+            colorFilter={selectedColor}
+            setColorFilter={setSelectedColor}
+            sizeFilter={selectedSize}
+            setSizeFilter={setSelectedSize}
+            stockFilter={selectedStock}
+            setStockFilter={setSelectedStock}
+            resetFilters={resetFilters}
+          />
+        </div>
 
         <button
           onClick={() => setShowAddProduct(true)}
