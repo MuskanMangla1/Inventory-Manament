@@ -24,7 +24,7 @@ export default function EditDetailsModal({ open, onClose, product, onUpdated }) 
     if (loading) return;
     try {
       setLoading(true);
-      await axios.patch(`${BASE_URL}/product/update`, {
+      await axios.post(`${BASE_URL}/product/update`, {
         id: product._id || product.id,
         ...form,
       });

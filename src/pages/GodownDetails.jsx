@@ -30,27 +30,26 @@ export default function GodownDetails() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStock, setSelectedStock] = useState("all");
 
-  // NEW FILTER STATES
   const [selectedColor, setSelectedColor] = useState("all");
   const [selectedSize, setSelectedSize] = useState("all");
-  
-  // FiltersModal state
+
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  useEffect(() => {
-    const loadGodownDetails = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(`${BASE_URL}/godown/${id}`);
-        setGodown(res.data?.data || res.data);
-      } catch (err) {
-        console.error("❌ Error loading godown:", err);
-        alert("Failed to load godown details");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ⭐ FIX: Function ko bahar le aaye so modals can call it
+  const loadGodownDetails = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${BASE_URL}/godown/${id}`);
+      setGodown(res.data?.data || res.data);
+    } catch (err) {
+      console.error("❌ Error loading godown:", err);
+      alert("Failed to load godown details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadGodownDetails();
   }, [id]);
 
@@ -59,14 +58,10 @@ export default function GodownDetails() {
 
   const products = godown.products || [];
 
-  // Unique Categories
   const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
-
-  // NEW: Unique Colors & Sizes
   const colors = [...new Set(products.map((p) => p.color).filter(Boolean))];
   const sizes = [...new Set(products.map((p) => p.size).filter(Boolean))];
 
-  // APPLY FILTERS
   const filteredProducts = products.filter((p) => {
     const matchesSearch =
       p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,7 +84,6 @@ export default function GodownDetails() {
     );
   });
 
-  // Reset filters function
   const resetFilters = () => {
     setSelectedCategory("all");
     setSelectedColor("all");
@@ -103,7 +97,7 @@ export default function GodownDetails() {
     try {
       await axios.delete(`${BASE_URL}/product`, { data: { id: productId } });
       alert("🗑️ Product deleted successfully!");
-      window.location.reload();
+      loadGodownDetails();
     } catch (err) {
       console.error("❌ Delete Error:", err);
       alert("Failed to delete product");
@@ -112,7 +106,7 @@ export default function GodownDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-2 pt-18 md:pt-2">
-      {/* Header */}
+      
       <div className="flex items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow flex-wrap">
         <Link
           to="/godowns"
@@ -197,7 +191,7 @@ export default function GodownDetails() {
         </div>
       )}
 
-      {/* Modals */}
+      {/* ⭐ MODALS FIXED */}
       {selectedProduct && (
         <>
           <TransactionsModal
@@ -205,15 +199,19 @@ export default function GodownDetails() {
             onClose={() => setShowTransactions(false)}
             product={selectedProduct}
           />
+
           <EditDetailsModal
             open={showEditDetails}
             onClose={() => setShowEditDetails(false)}
             product={selectedProduct}
+            onUpdated={loadGodownDetails}      // ⭐ Fix applied
           />
+
           <EditQuantityModal
             open={showEditQuantity}
             onClose={() => setShowEditQuantity(false)}
             product={selectedProduct}
+            onUpdated={loadGodownDetails}      // ⭐ Fix applied
           />
         </>
       )}
@@ -222,7 +220,7 @@ export default function GodownDetails() {
         open={showAddProduct}
         onClose={() => setShowAddProduct(false)}
         godowns={[godown]}
-        onAdded={() => window.location.reload()}
+        onAdded={loadGodownDetails}
         existingCategories={categories}
       />
     </div>
